@@ -69,22 +69,30 @@ func main() {
 		fmt.Println("Pringiedoobles!")
 	}()
 
+	// Create queue to iterate over with initial random prompt value
+	q := []data.Prompt{d.Ask()}
+
 	for {
-		prompt := d.Ask()
+		// Pop-left from queue
+		prompt := q[0]
+
 		var response int
 
-		// Repeat prompt until a valid response is received
+		// Repeat prompt until a valid response is received, using the fact that the prompt is still first in queue
 		var err error
-		for answered := false; !answered; answered = err == nil {
-			printPrompt(prompt)
-			response, err = readResponse(prompt)
-			if err != nil {
-				fmt.Printf("\n\033[31m%v \033[0m\n", err)
-			}
+		printPrompt(prompt)
+		response, err = readResponse(prompt)
+		if err != nil {
+			fmt.Printf("\n\033[31m%v \033[0m\n", err)
+			continue
 		}
 
+		// Record response
 		if err := d.Answer(prompt, response); err != nil {
 			fmt.Println(fmt.Errorf("could not record response to prompt: %w", err))
 		}
+
+		// Add next prompt
+		q = append(q[1:], d.Ask())
 	}
 }
