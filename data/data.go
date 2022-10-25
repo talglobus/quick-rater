@@ -187,17 +187,57 @@ func (d Data) Ask() Prompt {
 	}
 }
 
-func (d Data) Answer(prompt Prompt, answer int) error {
-	stmt, err := d.db.Prepare("INSERT INTO answer(element, question, answer, answer_time_ms) values(?,?,?,?)")
+func deleteLastIfMatch(tx *sql.Tx, prompt Prompt) error {
+	stmt, err := tx.Prepare("delete from answer where element = ? and question = ? and id = (" +
+		"select id from answer order by created desc limit 1);")
 	if err != nil {
-		return fmt.Errorf("could not prepare statement to save answer in DB: %w", err)
+		return fmt.Errorf("could not prepare statement: %w", err)
+	}
+
+	if _, err := stmt.Exec(prompt.element.id, prompt.question.id); err != nil {
+		return fmt.Errorf("could not remove matching last answer: %w", err)
+	}
+
+	return nil
+}
+
+func save(tx *sql.Tx, prompt Prompt, answer int) error {
+	stmt, err := tx.Prepare("INSERT INTO answer(element, question, answer, answer_time_ms) values(?,?,?,?)")
+	if err != nil {
+		return fmt.Errorf("could not prepare statement: %w", err)
 	}
 
 	t := time.Now()
 	elapsed := t.Sub(prompt.startTime)
 
 	if _, err := stmt.Exec(prompt.element.id, prompt.question.id, answer, elapsed.Milliseconds()); err != nil {
+		return fmt.Errorf("could not save answer: %w", err)
+	}
+
+	return nil
+}
+
+func (d Data) Answer(prompt Prompt, answer int) error {
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("could not begin DB transaction: %w", err)
+	}
+
+	defer tx.Rollback()
+
+	// If this question and element match those from the last answer, delete last answer to replace it with this one
+	if err := deleteLastIfMatch(tx, prompt); err != nil {
+		return fmt.Errorf("could not remove last answer in DB to replace with this one: %w", err)
+	}
+
+	// Save the new answer
+	if err := save(tx, prompt, answer); err != nil {
 		return fmt.Errorf("could not save answer in DB: %w", err)
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("could not commit transaction in DB: %w", err)
 	}
 
 	return nil
