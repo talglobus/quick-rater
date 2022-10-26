@@ -187,6 +187,7 @@ func (d Data) Ask() Prompt {
 	}
 }
 
+// deleteLastIfMatch checks if the last saved answer matches the current prompt, deleting it if so
 func deleteLastIfMatch(tx *sql.Tx, prompt Prompt) error {
 	stmt, err := tx.Prepare("delete from answer where element = ? and question = ? and id = (" +
 		"select id from answer order by created desc limit 1);")

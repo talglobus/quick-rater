@@ -11,8 +11,8 @@ import (
 	"quick-rater/data"
 )
 
-func reset() {
-	fmt.Fprint(os.Stdout, "\r \r")
+func display(question, answer string) {
+	fmt.Fprint(os.Stdout, "\r \r", question+answer)
 }
 
 func Init() {
@@ -28,7 +28,9 @@ func Close() {
 }
 
 func validate(isBinary bool, key Key) error {
-	if key.IsBackspace() || key.IsEscape() {
+	if key == nil {
+		return fmt.Errorf("input is empty")
+	} else if key.IsBackspace() || key.IsEscape() {
 		return nil
 	}
 
@@ -86,25 +88,20 @@ func Get(prompt data.Prompt) (Key, error) {
 				return backspaceKey{}, nil
 			case 0:
 				if ev.Ch == 89 {
-					reset()
-					fmt.Print(question + "Y")
+					display(question, "Y")
 					res = boolKey{true}
 				} else if ev.Ch == 121 {
-					reset()
-					fmt.Print(question + "y")
+					display(question, "y")
 					res = boolKey{true}
 				} else if ev.Ch == 78 {
-					reset()
-					fmt.Print(question + "N")
+					display(question, "N")
 					res = boolKey{false}
 				} else if ev.Ch == 110 {
-					reset()
-					fmt.Print(question + "n")
+					display(question, "n")
 					res = boolKey{false}
 				} else if ev.Ch >= 49 && ev.Ch <= 53 {
-					reset()
 					rating := int(ev.Ch) - 48
-					fmt.Print(question + strconv.Itoa(rating))
+					display(question, strconv.Itoa(rating))
 					res = ratingKey{rating}
 				}
 			}
