@@ -73,7 +73,11 @@ func main() {
 
 		// Go back on backspace
 		if key.IsBackspace() {
-			q = append([]data.Prompt{lastQuestion}, q...)
+			// Allow only one jump back to the last question
+			if q[0] != lastQuestion {
+				q = append([]data.Prompt{lastQuestion}, q...)
+			}
+
 			continue
 		}
 

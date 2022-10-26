@@ -2,7 +2,6 @@ package input
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/eidolon/wordwrap"
@@ -12,7 +11,7 @@ import (
 )
 
 func display(question, answer string) {
-	fmt.Fprint(os.Stdout, "\r \r", question+answer)
+	fmt.Printf("\r \r%v\033[36m%v\033[0m", question, answer)
 }
 
 func Init() {
