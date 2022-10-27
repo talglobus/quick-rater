@@ -59,7 +59,7 @@ func generatePromptText(prompt data.Prompt) (intro, question string) {
 	}
 
 	intro = fmt.Sprintf("\n%v\n%v\n\n", formattedTitle, formattedDescription)
-	question = fmt.Sprintf("%v %v\t", details.QuestionText, answerType)
+	question = fmt.Sprintf("%v %v\t\t", details.QuestionText, answerType)
 
 	return intro, question
 }
@@ -84,7 +84,13 @@ func Get(prompt data.Prompt) (Key, error) {
 			case term.KeyEsc:
 				return escapeKey{}, nil
 			case term.KeyBackspace, term.KeyBackspace2:
-				return backspaceKey{}, nil
+				// If backspace is hit and input has been entered, clear it. Otherwise, back to the last question
+				if res != nil {
+					res = nil
+					display(question, " ")
+				} else {
+					return backspaceKey{}, nil
+				}
 			case 0:
 				if ev.Ch == 89 {
 					display(question, "Y")
