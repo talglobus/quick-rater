@@ -35,7 +35,7 @@ type Data struct {
 }
 
 func getElements(db *sql.DB) ([]Element, error) {
-	rows, err := db.Query("SELECT id, title, details FROM element")
+	rows, err := db.Query("SELECT id, title, details FROM element WHERE active = TRUE")
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch elements from DB: %w", err)
 	}
@@ -59,7 +59,7 @@ func getElements(db *sql.DB) ([]Element, error) {
 }
 
 func getQuestions(db *sql.DB) ([]Question, error) {
-	rows, err := db.Query("SELECT id, text, isBinary FROM question")
+	rows, err := db.Query("SELECT id, text, isBinary FROM question WHERE active = TRUE")
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch questions from DB: %w", err)
 	}
