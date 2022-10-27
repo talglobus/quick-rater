@@ -81,7 +81,7 @@ func Get(prompt data.Prompt) (Key, error) {
 				}
 
 				return res, nil
-			case term.KeyEsc:
+			case term.KeyEsc, term.KeyCtrlC:
 				return escapeKey{}, nil
 			case term.KeyBackspace, term.KeyBackspace2:
 				// If backspace is hit and input has been entered, clear it. Otherwise, back to the last question
@@ -110,6 +110,8 @@ func Get(prompt data.Prompt) (Key, error) {
 					res = ratingKey{rating}
 				}
 			}
+		case term.EventInterrupt:
+			return escapeKey{}, nil
 		case term.EventError:
 			panic(ev.Err)
 		}

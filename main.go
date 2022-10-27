@@ -7,44 +7,12 @@ import (
 	"quick-rater/input"
 )
 
-// func promptUser(prompt data.Prompt) (val int, isBack bool, isEscape bool, error) {
-// 	key, err := input.Get(prompt)
-// 	if err != nil {
-//
-// 	}
-//
-// 	if key == nil {
-// 		return 0, false, fmt.Errorf("received empty string as input")
-// 	} else if key.IsBackspace()
-//
-// 	isBinary := prompt.Get().QuestionIsBinary
-//
-// 	// Binary question case
-// 	if val, ok := key.GetBool(); isBinary && ok && val {
-// 		return 5, false, nil
-// 	} else if isBinary && ok && !val {
-// 		return 0, false, nil
-// 	} else if isBinary && !ok {
-// 		return 0, false, fmt.Errorf("invalid input for yes/no question")
-// 	}
-//
-// 	// 5-star question case
-// 	if rating, ok := key.GetRating(); !ok {
-// 		return 0, false, fmt.Errorf("invalid numeric input for 5-star question")
-// 	} else {
-// 		return rating, false, nil
-// 	}
-// }
-
 func main() {
 	input.Init()
 	defer input.Close()
 
 	d := data.New()
-	defer func() {
-		d.Close()
-		fmt.Println("Pringiedoobles!")
-	}()
+	defer d.Close()
 
 	// Create queue to iterate over with initial random prompt value
 	q := []data.Prompt{d.Ask()}
