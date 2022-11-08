@@ -1,4 +1,4 @@
-module quick-rater
+module github.com/talglobus/quick-rater
 
 go 1.19
 
